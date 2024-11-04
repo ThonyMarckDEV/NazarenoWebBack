@@ -15,6 +15,11 @@ use App\Http\Controllers\AuthController;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::post('logout', [AuthController::class, 'logout']);
+
+Route::post('refresh-token', [AuthController::class, 'refreshToken']);
+
+Route::post('update-activity', [AuthController::class, 'updateLastActivity']);
+
 //================================================================================================
 
 

@@ -23,19 +23,10 @@ return [
 
     ],
 
- 
-
-   
-    'ttl' => env('JWT_TTL', 60),
     
-    //'ttl' => env('JWT_TTL', 1), // en minutos (1 minuto = 60 segundos)
-
-    //'ttl' => env('JWT_TTL', 1/3), // Aproximadamente 20 segundos
-
+    'ttl' => env('JWT_TTL', 10),
 
     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
-
-  
 
     'algo' => env('JWT_ALGO', Tymon\JWTAuth\Providers\JWT\Provider::ALGO_HS256),
 
