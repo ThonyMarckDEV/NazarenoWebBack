@@ -164,7 +164,7 @@ public function perfilDocente()
     {
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string|max:255',
+            'descripcion' => 'required|string|max:999',
             'fecha' => 'required|date',
             'fecha_vencimiento' => 'required|date|after_or_equal:fecha',
             'idModulo' => 'required|exists:modulos,idModulo'

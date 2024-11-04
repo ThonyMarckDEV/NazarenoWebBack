@@ -129,7 +129,7 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
     Route::get('/docente/{idDocente}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientesPorCurso']);
 
     // Ruta para obtener tareas pendientes por módulo
-Route::get('/modulo/{idModulo}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientes']);
+    Route::get('/modulo/{idModulo}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientes']);
 
 });
 

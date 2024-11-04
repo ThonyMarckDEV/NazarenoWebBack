@@ -13,6 +13,7 @@ use App\Models\AsignacionAulaDocente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -241,12 +242,13 @@ public function register(Request $request)
 
     public function listarEstudiantes()
     {
-        $estudiantes = Usuario::select('idUsuario', 'username')
+        $estudiantes = Usuario::select('idUsuario', DB::raw("CONCAT(nombres, ' ', apellidos) as nombre_completo"))
             ->where('rol', 'estudiante')
             ->get();
 
         return response()->json(['success' => true, 'data' => $estudiantes]);
     }
+
 
     public function listarGradosCupos()
     {
@@ -280,11 +282,23 @@ public function register(Request $request)
 
 
     // Listar estudiantes matriculados
+  
     public function listarMatriculas()
     {
-        $matriculas = AlumnoMatriculado::with('usuario:idUsuario,username', 'grado:idGrado,nombreGrado')
-            ->get(['idMatricula', 'idUsuario', 'idGrado', 'fechaMatricula']);
-        
+        $matriculas = AlumnoMatriculado::with([
+            'usuario:idUsuario',
+            'grado:idGrado,nombreGrado'
+        ])
+        ->join('usuarios', 'usuarios.idUsuario', '=', 'alumnosmatriculados.idUsuario')
+        ->select(
+            'alumnosmatriculados.idMatricula',
+            'alumnosmatriculados.idUsuario',
+            'alumnosmatriculados.idGrado',
+            'alumnosmatriculados.fechaMatricula',
+            DB::raw("CONCAT(usuarios.nombres, ' ', usuarios.apellidos) as nombre_completo")
+        )
+        ->get();
+
         return response()->json(['success' => true, 'data' => $matriculas]);
     }
 
