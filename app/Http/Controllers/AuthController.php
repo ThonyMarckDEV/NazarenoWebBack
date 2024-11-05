@@ -14,8 +14,8 @@ use Carbon\Carbon;
 class AuthController extends Controller
 {
     /**
-     * Login de usuario y generación de token JWT.
-     */
+ * Login de usuario y generación de token JWT.
+ */
     public function login(Request $request)
     {
         // Validar los campos de entrada
@@ -23,36 +23,34 @@ class AuthController extends Controller
             'username' => 'required|string',
             'password' => 'required|string|min:6',
         ]);
-    
+
         $credentials = $request->only('username', 'password');
-    
+
+        // Intentar autenticar y manejar los posibles errores
         try {
             // Verificar si el usuario ya está logueado al obtener solo el campo `status`
-            $status = Usuario::where('username', $credentials['username'])->value('status');
-    
+            $usuario = Usuario::where('username', $credentials['username'])->first();
+
             // Si el usuario no existe
-            if ($status === null) {
+            if (!$usuario) {
                 return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
-    
+
             // Verificar si el estado ya es `loggedOn`
-            if ($status === 'loggedOn') {
+            if ($usuario->status === 'loggedOn') {
                 return response()->json(['message' => 'Usuario ya logueado'], 409);
             }
-    
-            // Validar las credenciales
+
+            // Validar las credenciales y generar token
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Credenciales inválidas'], 401);
             }
-    
-            // Cambiar el estado a 'loggedOn' solo si las credenciales son correctas
-            Usuario::where('username', $credentials['username'])->update(['status' => 'loggedOn']);
-    
-        } catch (JWTException $e) {
+
+            // Si todo es correcto, enviar el token
+            return response()->json(compact('token'));
+        } catch (Exception $e) {
             return response()->json(['error' => 'No se pudo crear el token'], 500);
         }
-    
-        return response()->json(compact('token'));
     }
 
     /**

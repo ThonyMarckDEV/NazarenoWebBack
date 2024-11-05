@@ -30,11 +30,14 @@ class Usuario extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
+        // Asegúrate de actualizar el estado antes de emitir el token
+        $this->update(['status' => 'loggedOn']);
+
         return [
             'idUsuario' => $this->idUsuario,
             'dni' => $this->dni,
             'nombres' => $this->nombres,
-            'estado' => $this->status,
+            'estado' => $this->status, // Aquí ya está actualizado a 'loggedOn'
             'rol' => $this->rol,
         ];
     }
