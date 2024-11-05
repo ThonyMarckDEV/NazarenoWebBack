@@ -363,7 +363,7 @@ class EstudianteController extends Controller
         ]);
     }
 
-    public function obtenerCalificacionesPorModulo($idModulo)
+    public function obtenerCalificacionesPorModulo($idModulo, $idUsuario)
     {
         $actividadesConCalificaciones = DB::table('actividades')
             ->join('tareas_alumnos', 'actividades.idActividad', '=', 'tareas_alumnos.idActividad')
@@ -375,6 +375,7 @@ class EstudianteController extends Controller
                 'tareas_alumnos.visto' // Añadimos el campo 'visto'
             )
             ->where('actividades.idModulo', $idModulo)
+            ->where('tareas_alumnos.idUsuario', $idUsuario) // Filtrar por idUsuario
             ->where('tareas_alumnos.revisado', 'si') // Filtrar solo tareas revisadas
             ->get();
 
@@ -388,11 +389,11 @@ class EstudianteController extends Controller
             }
 
             return [
-                'idTarea' => $actividad->idTarea, // Incluir idTarea en la respuesta
+                'idTarea' => $actividad->idTarea,
                 'idActividad' => $actividad->idActividad,
                 'titulo' => $actividad->titulo,
                 'nota' => $actividad->nota,
-                'visto' => $actividad->visto, // Incluir estado visto
+                'visto' => $actividad->visto,
                 'color' => $color,
             ];
         });
