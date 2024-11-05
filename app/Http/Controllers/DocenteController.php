@@ -184,7 +184,7 @@ public function perfilDocente()
         // Validación de los datos recibidos
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'archivo' => 'required|file',
+            'archivo' => 'required|file|max:51200',
             'idModulo' => 'required|exists:modulos,idModulo'
         ]);
     
@@ -236,6 +236,7 @@ public function perfilDocente()
             ], 500);
         }
     }
+
 
     public function obtenerTareas($idModulo)
     {
@@ -330,7 +331,111 @@ public function perfilDocente()
         return response()->json(['success' => true, 'tareasPendientes' => $tareasPendientes]);
     }
 
-    
 
+    
+    // Función para obtener materiales asignados con `idMaterial`
+    public function obtenerMaterialesAsignadas($idModulo)
+    {
+        $materiales = Archivo::where('idModulo', $idModulo)->get(['id as idMaterial', 'nombre', 'tipo', 'ruta']);
         
+        return response()->json([
+            'success' => true,
+            'data' => $materiales
+        ]);
+    }
+    // Función para obtener actividades asignadas con `idActividad`
+    public function obtenerActividadesAsignadas($idModulo)
+    {
+        // Obtener las actividades relacionadas con el módulo usando el `idModulo`
+        $actividades = Actividad::where('idModulo', $idModulo)->get(['idActividad', 'titulo', 'descripcion', 'fecha_vencimiento']); // Incluye `idActividad` y otros campos necesarios
+        
+        return response()->json([
+            'success' => true,
+            'data' => $actividades
+        ]);
+    }
+
+    public function eliminarArchivo($idMaterial)
+    {
+        try {
+            // Buscar el material en la base de datos
+            $material = Archivo::findOrFail($idMaterial);
+
+            // Eliminar el archivo físico si existe
+            $rutaArchivo = 'material/' . $material->ruta;
+            if (Storage::disk('public')->exists($rutaArchivo)) {
+                Storage::disk('public')->delete($rutaArchivo);
+            }
+
+            // Eliminar el registro del material en la base de datos
+            $material->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Material eliminado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el material',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function eliminarActividad($idActividad)
+    {
+        try {
+            // Buscar la actividad en la base de datos
+            $actividad = Actividad::findOrFail($idActividad);
+
+            // Eliminar la actividad de la base de datos
+            $actividad->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Actividad eliminada correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar la actividad',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function actualizarActividad(Request $request, $idActividad)
+    {
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'fecha_vencimiento' => 'required|date',
+        ]);
+    
+        try {
+            $actividad = Actividad::findOrFail($idActividad);
+    
+            Log::info("Datos enviados para actualizar:", $request->all());
+    
+            $actividad->titulo = $request->titulo;
+            $actividad->descripcion = $request->descripcion;
+            $actividad->fecha_vencimiento = $request->fecha_vencimiento;
+            $actividad->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Actividad actualizada correctamente',
+                'data' => $actividad
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al actualizar la actividad: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la actividad',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

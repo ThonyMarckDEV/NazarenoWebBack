@@ -117,6 +117,7 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
     Route::post('anuncios', [DocenteController::class, 'store']);
     
     Route::post('materiales', [DocenteController::class, 'agregarArchivo']);
+   
 
     Route::post('actividades', [DocenteController::class, 'agregarActividad']);
 
@@ -130,6 +131,12 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
 
     // Ruta para obtener tareas pendientes por módulo
     Route::get('/modulo/{idModulo}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientesPorModulo']);
+
+    Route::get('/modulo/{idModulo}/materialesAsignadas', [DocenteController::class, 'obtenerMaterialesAsignadas']);
+    Route::get('/modulo/{idModulo}/actividadesAsignadas', [DocenteController::class, 'obtenerActividadesAsignadas']);
+    Route::delete('/material/{idMaterial}', [DocenteController::class, 'eliminarArchivo']);
+    Route::delete('/actividad/{idActividad}', [DocenteController::class, 'eliminarActividad']);
+    Route::put('/actualizaractividad/{idActividad}', [DocenteController::class, 'actualizarActividad']);
 
 });
 

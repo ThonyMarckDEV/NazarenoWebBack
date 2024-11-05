@@ -283,7 +283,7 @@ class EstudianteController extends Controller
         $request->validate([
             'idUsuario' => 'required|exists:usuarios,idUsuario',
             'idActividad' => 'required|exists:actividades,idActividad',
-            'archivo' => 'required|file|max:10240' // Max 10MB
+            'archivo' => 'required|file|max:51200' // Max 50MB
         ]);
 
         try {
