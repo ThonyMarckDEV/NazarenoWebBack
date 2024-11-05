@@ -252,7 +252,7 @@ public function register(Request $request)
 
     public function listarGradosCupos()
     {
-        $grados = Grado::select('idGrado', 'nombreGrado', 'cupos')->get();
+        $grados = Grado::select('idGrado', 'nombreGrado', 'seccion', 'cupos')->get();
         return response()->json(['success' => true, 'data' => $grados]);
     }
 
@@ -287,7 +287,7 @@ public function register(Request $request)
     {
         $matriculas = AlumnoMatriculado::with([
             'usuario:idUsuario',
-            'grado:idGrado,nombreGrado'
+            'grado:idGrado,nombreGrado,seccion' // Incluimos 'seccion' en la relación
         ])
         ->join('usuarios', 'usuarios.idUsuario', '=', 'alumnosmatriculados.idUsuario')
         ->select(
@@ -298,7 +298,7 @@ public function register(Request $request)
             DB::raw("CONCAT(usuarios.nombres, ' ', usuarios.apellidos) as nombre_completo")
         )
         ->get();
-
+    
         return response()->json(['success' => true, 'data' => $matriculas]);
     }
 
