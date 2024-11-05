@@ -129,7 +129,7 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
     Route::get('/docente/{idDocente}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientesPorCurso']);
 
     // Ruta para obtener tareas pendientes por módulo
-    Route::get('/modulo/{idModulo}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientes']);
+    Route::get('/modulo/{idModulo}/tareas-pendientes', [DocenteController::class, 'obtenerTareasPendientesPorModulo']);
 
 });
 
@@ -155,8 +155,12 @@ Route::middleware(['auth.jwt', 'checkRoleMW:estudiante'])->group(function () {
     Route::get('/descargar/{curso}/{modulo}/{archivo}', [EstudianteController::class, 'descargarArchivo']);
     Route::post('/subir-tarea', [EstudianteController::class, 'subirTarea']);
     Route::post('/verificar-estado-actividad', [EstudianteController::class, 'verificarEstadoActividad']);
-
     Route::get('/modulos/{idModulo}/calificaciones', [EstudianteController::class, 'obtenerCalificacionesPorModulo']);
+    Route::get('tareas-revisadas/{idUsuario}', [EstudianteController::class,'obtenerTareasRevisadasPorUsuario']);
+    Route::get('/tareas-revisadas-por-curso/{idUsuario}', [EstudianteController::class,'obtenerTareasRevisadasPorCurso']);
+    Route::get('tareas-revisadas-por-modulo/{idUsuario}/{idModulo}', action: [EstudianteController::class, 'obtenerTareasRevisadasPorModulo']);
+    Route::get('/modulos/{idModulo}/calificaciones', [EstudianteController::class, 'obtenerCalificacionesPorModulo']);
+    Route::put('/tareas/{idTarea}/{idUsuario}/marcar-visto', [EstudianteController::class, 'marcarComoVisto']);
 });
 
 

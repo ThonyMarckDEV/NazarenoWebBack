@@ -318,7 +318,7 @@ public function perfilDocente()
         return response()->json(['success' => true, 'data' => $tareasPendientes]);
     }
 
-    public function obtenerTareasPendientes($idModulo)
+    public function obtenerTareasPendientesPorModulo($idModulo)
     {
         $tareasPendientes = TareaAlumno::with(['usuario', 'actividad'])
             ->whereHas('actividad', function ($query) use ($idModulo) {
@@ -329,6 +329,8 @@ public function perfilDocente()
 
         return response()->json(['success' => true, 'tareasPendientes' => $tareasPendientes]);
     }
+
+    
 
         
 }

@@ -367,11 +367,17 @@ class EstudianteController extends Controller
     {
         $actividadesConCalificaciones = DB::table('actividades')
             ->join('tareas_alumnos', 'actividades.idActividad', '=', 'tareas_alumnos.idActividad')
-            ->select('actividades.idActividad', 'actividades.titulo', 'tareas_alumnos.nota')
+            ->select(
+                'tareas_alumnos.idTarea', // Añadimos idTarea aquí
+                'actividades.idActividad', 
+                'actividades.titulo', 
+                'tareas_alumnos.nota', 
+                'tareas_alumnos.visto' // Añadimos el campo 'visto'
+            )
             ->where('actividades.idModulo', $idModulo)
+            ->where('tareas_alumnos.revisado', 'si') // Filtrar solo tareas revisadas
             ->get();
 
-        // Formatear las calificaciones con el color según el rango de notas
         $result = $actividadesConCalificaciones->map(function ($actividad) {
             $color = 'text-green-500'; // Color verde por defecto
 
@@ -382,9 +388,11 @@ class EstudianteController extends Controller
             }
 
             return [
+                'idTarea' => $actividad->idTarea, // Incluir idTarea en la respuesta
                 'idActividad' => $actividad->idActividad,
                 'titulo' => $actividad->titulo,
                 'nota' => $actividad->nota,
+                'visto' => $actividad->visto, // Incluir estado visto
                 'color' => $color,
             ];
         });
@@ -392,5 +400,70 @@ class EstudianteController extends Controller
         return response()->json(['success' => true, 'data' => $result]);
     }
 
+
+    public function obtenerTareasRevisadasPorUsuario($idUsuario)
+    {
+        $totalTareasRevisadas = DB::table('tareas_alumnos')
+            ->where('revisado', 'si')
+            ->where('visto', 'no') // Filtrar solo tareas no vistas
+            ->where('idUsuario', $idUsuario)
+            ->count();
+
+        return response()->json(['success' => true, 'totalTareasRevisadas' => $totalTareasRevisadas]);
+    }
+
+
+    public function obtenerTareasRevisadasPorCurso($idUsuario)
+    {
+        // Validar que el id del usuario esté presente
+        if (!$idUsuario) {
+            return response()->json(['success' => false, 'message' => 'ID del usuario no proporcionado.'], 400);
+        }
+
+        $tareasRevisadas = DB::table('tareas_alumnos as t')
+            ->join('actividades as a', 't.idActividad', '=', 'a.idActividad')
+            ->join('modulos as m', 'a.idModulo', '=', 'm.idModulo')
+            ->join('cursos as c', 'm.idCurso', '=', 'c.idCurso')
+            ->join('grados as g', 'c.idGrado', '=', 'g.idGrado')
+            ->select('c.nombreCurso', 'g.seccion', DB::raw('COUNT(t.idTarea) as tareas_revisadas'))
+            ->where('t.revisado', 'si')
+            ->where('t.visto', 'no') // Filtra por las tareas no vistas
+            ->where('t.idUsuario', $idUsuario)
+            ->groupBy('c.idCurso', 'g.seccion', 'c.nombreCurso')
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $tareasRevisadas]);
+    }
         
+
+    public function obtenerTareasRevisadasPorModulo($idUsuario, $idModulo)
+    {
+        $tareasRevisadas = DB::table('tareas_alumnos as t')
+            ->join('actividades as a', 't.idActividad', '=', 'a.idActividad')
+            ->where('t.idUsuario', $idUsuario)
+            ->where('a.idModulo', $idModulo)
+            ->where('t.revisado', 'si')
+            ->where('t.visto', 'no') // Filtrar solo las tareas que aún no han sido vistas
+            ->count();
+
+        return response()->json(['success' => true, 'tareasRevisadas' => $tareasRevisadas]);
+    }
+
+    public function marcarComoVisto($idTarea, $idUsuario)
+    {
+        // Busca la tarea en base al idUsuario e idActividad
+        $tarea = TareaAlumno::where('idTarea', $idTarea)
+                            ->where('idUsuario', $idUsuario)
+                            ->first();
+
+        if (!$tarea) {
+            return response()->json(['success' => false, 'message' => 'Tarea no encontrada'], 404);
+        }
+
+        // Marcar la tarea como vista
+        $tarea->visto = 'si';
+        $tarea->save();
+
+        return response()->json(['success' => true, 'message' => 'Tarea marcada como vista']);
+    }
 }

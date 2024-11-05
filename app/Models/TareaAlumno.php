@@ -10,7 +10,6 @@ class TareaAlumno extends Model
     use HasFactory;
 
     protected $table = 'tareas_alumnos';
-
     protected $primaryKey = 'idTarea';
     public $timestamps = false;
 
@@ -22,7 +21,8 @@ class TareaAlumno extends Model
         'archivo_tipo', 
         'ruta', 
         'fecha_subida', 
-        'revisado'
+        'revisado',
+        'visto' // Campo agregado
     ];
 
     public function usuario()
