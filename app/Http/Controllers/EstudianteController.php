@@ -362,5 +362,35 @@ class EstudianteController extends Controller
             'tareaSubida' => $tareaSubida,
         ]);
     }
+
+    public function obtenerCalificacionesPorModulo($idModulo)
+    {
+        $actividadesConCalificaciones = DB::table('actividades')
+            ->join('tareas_alumnos', 'actividades.idActividad', '=', 'tareas_alumnos.idActividad')
+            ->select('actividades.idActividad', 'actividades.titulo', 'tareas_alumnos.nota')
+            ->where('actividades.idModulo', $idModulo)
+            ->get();
+
+        // Formatear las calificaciones con el color según el rango de notas
+        $result = $actividadesConCalificaciones->map(function ($actividad) {
+            $color = 'text-green-500'; // Color verde por defecto
+
+            if ($actividad->nota < 11) {
+                $color = 'text-red-500';
+            } elseif ($actividad->nota < 15) {
+                $color = 'text-orange-500';
+            }
+
+            return [
+                'idActividad' => $actividad->idActividad,
+                'titulo' => $actividad->titulo,
+                'nota' => $actividad->nota,
+                'color' => $color,
+            ];
+        });
+
+        return response()->json(['success' => true, 'data' => $result]);
+    }
+
         
 }

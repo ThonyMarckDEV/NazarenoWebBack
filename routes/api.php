@@ -155,6 +155,8 @@ Route::middleware(['auth.jwt', 'checkRoleMW:estudiante'])->group(function () {
     Route::get('/descargar/{curso}/{modulo}/{archivo}', [EstudianteController::class, 'descargarArchivo']);
     Route::post('/subir-tarea', [EstudianteController::class, 'subirTarea']);
     Route::post('/verificar-estado-actividad', [EstudianteController::class, 'verificarEstadoActividad']);
+
+    Route::get('/modulos/{idModulo}/calificaciones', [EstudianteController::class, 'obtenerCalificacionesPorModulo']);
 });
 
 
