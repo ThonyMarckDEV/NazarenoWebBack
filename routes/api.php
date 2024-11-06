@@ -10,20 +10,6 @@ use App\Http\Controllers\AuthController;
 //RUTAS
 
 //================================================================================================
-// RUTAS AUTH
-//RUTA PARA QUE LOS USUAIOS SE LOGEEN POR EL CONTROLLADOR AUTHCONTROLLER
-Route::post('login', [AuthController::class, 'login']);
-
-Route::post('logout', [AuthController::class, 'logout']);
-
-Route::post('refresh-token', [AuthController::class, 'refreshToken']);
-
-Route::post('update-activity', [AuthController::class, 'updateLastActivity']);
-
-//================================================================================================
-
-
-//================================================================================================
 // RUTAS LIBRES
 
     // RUTA PARA LISTAR Especialidad
@@ -59,16 +45,29 @@ Route::post('update-activity', [AuthController::class, 'updateLastActivity']);
 
     Route::get('curso/{idCurso}/modulos', [DocenteController::class, 'listarModulosPorCurso']);
 
+
+    Route::get('/cursos/{idCurso}/estudiantes', [DocenteController::class, 'obtenerEstudiantes']);
+    Route::get('/alumnos/{idUsuario}/foto-perfil', [DocenteController::class, 'obtenerFotoPerfil']);
  
    
 //================================================================================================
+        //RUTAS PROTEGIDAS AUTH
 
+        //RUTA PARA QUE LOS USUAIOS SE LOGEEN POR EL CONTROLLADOR AUTHCONTROLLER
+        Route::post('login', [AuthController::class, 'login']);
 
+        Route::post('logout', [AuthController::class, 'logout']);
+
+        
+        Route::post('refresh-token', [AuthController::class, 'refreshToken']);
+
+        Route::post('update-activity', [AuthController::class, 'updateLastActivity']);
+
+//================================================================================================
 
 
 //================================================================================================
-// RUTAS PROTEGIDAs
-
+        //RUTAS PROTEGIDAS A
 // RUTAS PARA ADMINISTRADOR VALIDADA POR MIDDLEWARE AUTH (PARA TOKEN JWT) Y CHECKROLE (PARA VALIDAR ROL DEL TOKEN)
 Route::middleware(['auth.jwt', 'checkRoleMW:admin'])->group(function () {
 
@@ -137,8 +136,6 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
     Route::delete('/material/{idMaterial}', [DocenteController::class, 'eliminarArchivo']);
     Route::delete('/actividad/{idActividad}', [DocenteController::class, 'eliminarActividad']);
     Route::put('/actualizaractividad/{idActividad}', [DocenteController::class, 'actualizarActividad']);
-    Route::get('/cursos/{idCurso}/estudiantes', [DocenteController::class, 'obtenerEstudiantes']);
-    Route::get('/alumnos/{idUsuario}/foto-perfil', [DocenteController::class, 'obtenerFotoPerfil']);
 });
 
 

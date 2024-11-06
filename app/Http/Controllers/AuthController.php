@@ -18,7 +18,7 @@ class AuthController extends Controller
  */
     public function login(Request $request)
     {
-        // Validar los campos de entrada
+   
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string|min:6',
@@ -26,29 +26,27 @@ class AuthController extends Controller
 
         $credentials = $request->only('username', 'password');
 
-        // Intentar autenticar y manejar los posibles errores
         try {
-            // Verificar si el usuario ya está logueado al obtener solo el campo `status`
+            
             $usuario = Usuario::where('username', $credentials['username'])->first();
 
-            // Si el usuario no existe
+           
             if (!$usuario) {
                 return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
 
-            // Verificar si el estado ya es `loggedOn`
+          
             if ($usuario->status === 'loggedOn') {
                 return response()->json(['message' => 'Usuario ya logueado'], 409);
             }
 
-            // Validar las credenciales y generar token
+            
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Credenciales inválidas'], 401);
             }
 
-            // Si todo es correcto, enviar el token
             return response()->json(compact('token'));
-        } catch (Exception $e) {
+        } catch (JWTException $e) {
             return response()->json(['error' => 'No se pudo crear el token'], 500);
         }
     }
@@ -58,17 +56,17 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Validar que el campo idUsuario esté presente en la solicitud
+        
         $request->validate([
             'idUsuario' => 'required|integer',
         ]);
     
-        // Buscar al usuario por idUsuario
+      
         $user = Usuario::where('idUsuario', $request->idUsuario)->first();
     
         if ($user) {
             try {
-                // Cambiar el estado del usuario a 'loggedOff'
+                
                 $user->status = 'loggedOff';
                 $user->save();
     
@@ -87,20 +85,20 @@ class AuthController extends Controller
     public function refreshToken(Request $request)
     {
         try {
-            $oldToken = JWTAuth::getToken(); // Captura el token actual antes de refrescarlo
+            $oldToken = JWTAuth::getToken();
 
-            // Log del token recibido
+         
             Log::info('Refrescando token: Token recibido', ['token' => (string) $oldToken]);
 
-            // Refresca el token y devuelve uno nuevo
+            
             $newToken = JWTAuth::refresh($oldToken);
 
-            // Log del nuevo token
+          
             Log::info('Token refrescado: Nuevo token', ['newToken' => $newToken]);
 
             return response()->json(['accessToken' => $newToken], 200);
         } catch (JWTException $e) {
-            // Log del error si falla el refresco
+            
             Log::error('Error al refrescar el token', ['error' => $e->getMessage()]);
 
             return response()->json(['error' => 'No se pudo refrescar el token'], 500);
@@ -110,20 +108,19 @@ class AuthController extends Controller
 
     public function updateLastActivity(Request $request)
     {
-        // Validar que el campo idUsuario esté presente en la solicitud
+        
         $request->validate([
             'idUsuario' => 'required|integer',
         ]);
         
-        // Buscar al usuario por idUsuario
+        
         $user = Usuario::find($request->idUsuario);
         
         if (!$user) {
             return response()->json(['error' => 'Usuario no encontrado'], 404);
         }
         
-        // Asumiendo que 'activity' es una relación definida en el modelo Usuario
-        // y que quieres actualizar o crear un registro de actividad.
+       
         $user->activity()->updateOrCreate(
             ['idUsuario' => $user->idUsuario],
             ['last_activity' => now()]

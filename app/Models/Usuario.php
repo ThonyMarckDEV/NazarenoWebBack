@@ -37,7 +37,7 @@ class Usuario extends Authenticatable implements JWTSubject
             'idUsuario' => $this->idUsuario,
             'dni' => $this->dni,
             'nombres' => $this->nombres,
-            'estado' => $this->status, // Aquí ya está actualizado a 'loggedOn'
+            'estado' => $this->status, 
             'rol' => $this->rol,
         ];
     }
