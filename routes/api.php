@@ -137,7 +137,8 @@ Route::middleware(['auth.jwt', 'checkRoleMW:docente'])->group(function () {
     Route::delete('/material/{idMaterial}', [DocenteController::class, 'eliminarArchivo']);
     Route::delete('/actividad/{idActividad}', [DocenteController::class, 'eliminarActividad']);
     Route::put('/actualizaractividad/{idActividad}', [DocenteController::class, 'actualizarActividad']);
-
+    Route::get('/cursos/{idCurso}/estudiantes', [DocenteController::class, 'obtenerEstudiantes']);
+    Route::get('/alumnos/{idUsuario}/foto-perfil', [DocenteController::class, 'obtenerFotoPerfil']);
 });
 
 

@@ -438,4 +438,50 @@ public function perfilDocente()
             ], 500);
         }
     }
+
+    public function obtenerEstudiantes($idCurso)
+    {
+        // Consulta a la base de datos para obtener los estudiantes matriculados
+        $estudiantes = DB::table('alumnosmatriculados as am')
+            ->join('usuarios as u', 'am.idUsuario', '=', 'u.idUsuario')
+            ->join('cursos as c', 'am.idGrado', '=', 'c.idGrado')
+            ->select(
+                'u.idUsuario',  // Incluye idUsuario en la selección
+                DB::raw("CONCAT(u.nombres, ' ', u.apellidos) AS nombreCompleto"),
+                'u.departamento',
+                DB::raw("IFNULL(u.perfil, '/img/default-profile.jpg') AS perfilRuta")
+            )
+            ->where('c.idCurso', $idCurso)
+            ->get();
+    
+        // Retornar los datos en formato JSON
+        return response()->json([
+            'success' => true,
+            'data' => $estudiantes
+        ]);
+    }
+    public function obtenerFotoPerfil($idUsuario)
+    {
+        // Buscar el usuario por id
+        $usuario = Usuario::find($idUsuario);
+    
+        // Verificar si el usuario existe
+        if (!$usuario) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+    
+        // Obtener la URL completa de la foto de perfil o null si no tiene foto
+        $profileUrl = $usuario->perfil ? url("storage/{$usuario->perfil}") : null;
+    
+        // Retornar la respuesta en JSON con solo la URL de la foto de perfil o null
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'perfil' => $profileUrl
+            ]
+        ]);
+    }
 }
