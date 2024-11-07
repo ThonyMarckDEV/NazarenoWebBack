@@ -439,8 +439,7 @@ public function register(Request $request)
     }
 
 
-     // Función para asignar un aula a un docente para un curso específico
-       // Función para asignar un aula a un docente
+    // Función para asignar un aula a un docente
     public function asignarAulaDocente(Request $request)
     {
         $request->validate([
@@ -449,14 +448,24 @@ public function register(Request $request)
         ]);
 
         // Verificar si ya existe la asignación para este docente y aula
-        $exists = AsignacionAulaDocente::where('idDocente', $request->idDocente)
+        $existsForDocente = AsignacionAulaDocente::where('idDocente', $request->idDocente)
             ->where('idAula', $request->idAula)
             ->exists();
 
-        if ($exists) {
+        if ($existsForDocente) {
             return response()->json([
                 'success' => false,
                 'message' => 'El docente ya está asignado a esta aula.'
+            ], 400);
+        }
+
+        // Verificar si otro docente ya está asignado a esta aula
+        $existsForAula = AsignacionAulaDocente::where('idAula', $request->idAula)->exists();
+
+        if ($existsForAula) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta aula ya está asignada a otro docente.'
             ], 400);
         }
 
@@ -472,6 +481,7 @@ public function register(Request $request)
             'data' => $asignacion
         ]);
     }
+
 
     // app/Http/Controllers/DocenteController.php
     public function listarTodasLasAsignaciones()
