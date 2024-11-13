@@ -62,6 +62,8 @@ use App\Http\Controllers\AuthController;
         Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 
         Route::post('update-activity', [AuthController::class, 'updateLastActivity']);
+        
+        Route::post('/check-status', [AuthController::class, 'checkStatus']);
 
 //================================================================================================
 
