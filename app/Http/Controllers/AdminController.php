@@ -521,5 +521,111 @@ public function register(Request $request)
             'message' => 'Asignación eliminada exitosamente.'
         ]);
     }
+
+    //FUNCIONES PARA REPORTES
+
+    public function listarGradosReportes()
+    {
+        return response()->json(Grado::select('idGrado', 'nombreGrado', 'nivel', 'seccion')->get());
+    }
+
+    public function getAlumnosByGrado($idGrado)
+    {
+        $alumnos = AlumnoMatriculado::where('idGrado', $idGrado)
+            ->join('usuarios', 'alumnosmatriculados.idUsuario', '=', 'usuarios.idUsuario')
+            ->select('usuarios.idUsuario', 'usuarios.nombres', 'usuarios.apellidos', 'usuarios.perfil', 'usuarios.rol')
+            ->where('usuarios.rol', 'estudiante')
+            ->get();
+
+        return response()->json($alumnos);
+    }
+
+    public function notasPorGrado($idGrado)
+    {
+        $notas = DB::table('usuarios as u')
+            ->join('tareas_alumnos as ta', 'u.idUsuario', '=', 'ta.idUsuario')
+            ->join('actividades as a', 'ta.idActividad', '=', 'a.idActividad')
+            ->join('modulos as m', 'a.idModulo', '=', 'm.idModulo')
+            ->join('cursos as c', 'm.idCurso', '=', 'c.idCurso')
+            ->select(
+                'u.nombres',
+                'u.apellidos',
+                'u.perfil as foto_perfil', // Añadir esta línea
+                'a.titulo as titulo_actividad',
+                'ta.nota',
+                'ta.fecha_subida',
+                'a.fecha_vencimiento',
+                'c.nombreCurso as curso'
+            )
+            ->where('u.rol', 'estudiante')
+            ->where('c.idGrado', $idGrado)
+            ->get();
+    
+        return response()->json($notas);
+    }
+
+    public function cursosPorAlumno($idUsuario, $idGrado)
+    {
+        $cursos = DB::table('cursos as c')
+            ->join('alumnosmatriculados as am', 'c.idGrado', '=', 'am.idGrado')
+            ->select('c.idCurso', 'c.nombreCurso')
+            ->where('am.idUsuario', $idUsuario)
+            ->where('am.idGrado', $idGrado)
+            ->get();
+
+        return response()->json($cursos);
+    }
+
+     // Obtener notas del alumno por curso
+     public function notasPorAlumnoYCurso($idUsuario, $idCurso)
+     {
+         $notas = DB::table('usuarios as u')
+             ->join('tareas_alumnos as ta', 'u.idUsuario', '=', 'ta.idUsuario')
+             ->join('actividades as a', 'ta.idActividad', '=', 'a.idActividad')
+             ->join('modulos as m', 'a.idModulo', '=', 'm.idModulo')
+             ->join('cursos as c', 'm.idCurso', '=', 'c.idCurso')
+             ->select(
+                 'u.nombres',
+                 'u.apellidos',
+                 'u.perfil as foto_perfil',
+                 'a.titulo as titulo_actividad',
+                 'ta.nota',
+                 'ta.fecha_subida',
+                 'a.fecha_vencimiento',
+                 'c.nombreCurso as curso'
+             )
+             ->where('u.idUsuario', $idUsuario)
+             ->where('u.rol', 'estudiante')
+             ->where('c.idCurso', $idCurso)
+             ->get();
+ 
+         return response()->json($notas);
+     }
+ 
+ 
+      // Obtener notas generales del alumno
+    public function notasPorAlumno($idUsuario)
+    {
+        $notas = DB::table('usuarios as u')
+            ->join('tareas_alumnos as ta', 'u.idUsuario', '=', 'ta.idUsuario')
+            ->join('actividades as a', 'ta.idActividad', '=', 'a.idActividad')
+            ->join('modulos as m', 'a.idModulo', '=', 'm.idModulo')
+            ->join('cursos as c', 'm.idCurso', '=', 'c.idCurso')
+            ->select(
+                'u.nombres',
+                'u.apellidos',
+                'u.perfil as foto_perfil',
+                'a.titulo as titulo_actividad',
+                'ta.nota',
+                'ta.fecha_subida',
+                'a.fecha_vencimiento',
+                'c.nombreCurso as curso'
+            )
+            ->where('u.idUsuario', $idUsuario)
+            ->where('u.rol', 'estudiante')
+            ->get();
+
+        return response()->json($notas);
+    }
     
 }

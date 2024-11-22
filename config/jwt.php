@@ -55,12 +55,11 @@ return [
 
     'leeway' => env('JWT_LEEWAY', 0),
 
-  
-    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
- 
+    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
 
-    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+
+    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 60), // 60 segundos de periodo de gracia
 
   
 

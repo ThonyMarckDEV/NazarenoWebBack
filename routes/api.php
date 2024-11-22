@@ -51,7 +51,7 @@ use App\Http\Controllers\AuthController;
  
    
 //================================================================================================
-        //RUTAS PROTEGIDAS AUTH
+        //RUTAS AUTH
 
         //RUTA PARA QUE LOS USUAIOS SE LOGEEN POR EL CONTROLLADOR AUTHCONTROLLER
         Route::post('login', [AuthController::class, 'login']);
@@ -67,9 +67,30 @@ use App\Http\Controllers\AuthController;
 
 //================================================================================================
 
+   
+//================================================================================================
+        //RUTAS PARA REPORTES
+
+        Route::get('/grados', [AdminController::class, 'listarGradosReportes']);
+
+        Route::get('/grados/{idGrado}/alumnos', [AdminController::class, 'getAlumnosByGrado']);
+
+        Route::get('/grados/{idGrado}/notas', [AdminController::class, 'notasPorGrado']);
+
+        Route::get('/alumnos/{idUsuario}/grados/{idGrado}/cursos', [AdminController::class, 'cursosPorAlumno']);
+
+        // Obtener notas del alumno por curso
+        Route::get('/alumnos/{idUsuario}/cursos/{idCurso}/notas', [AdminController::class, 'notasPorAlumnoYCurso']);
+
+        // Obtener notas generales del alumno
+        Route::get('/alumnos/{idUsuario}/notas', [AdminController::class, 'notasPorAlumno']);
 
 //================================================================================================
-        //RUTAS PROTEGIDAS A
+
+
+
+//================================================================================================
+
 // RUTAS PARA ADMINISTRADOR VALIDADA POR MIDDLEWARE AUTH (PARA TOKEN JWT) Y CHECKROLE (PARA VALIDAR ROL DEL TOKEN)
 Route::middleware(['auth.jwt', 'checkRoleMW:admin'])->group(function () {
 
